@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useState } from 'react'
 import axios from 'axios'
+import useAuth from "./hooks/useAuth";
 
 export default function Login() {
 
+    const { setUser } = useAuth()
     const [input, setInput] = useState({
         username: '',
         password: ''
@@ -19,9 +21,13 @@ export default function Login() {
             const rs = await axios.post('http://localhost:8000/auth/login', input)
             // console.log(rs.data.token)
             localStorage.setItem('token', rs.data.token)
-            if (rs.status === 200) {
-                alert('Login Successful')
-            }
+
+            const rs1 = await axios.get('http://localhost:8000/auth/me', {
+                headers: { Authorization: `Bearer ${rs.data.token}` }
+            })
+
+            console.log(rs1.data)
+            setUser(rs1.data)
         } catch (error) {
             alert(error.message)
         }
